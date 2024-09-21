@@ -30,14 +30,15 @@ data <-
         min = as.numeric(start_date),
         max = as.numeric(end_date)
       ),
-      origin = "1970-01-01"
+      origin = "2007-06-03"
     ),
-    number_of_marriage = rpois(n = number_of_dates, lambda = 20)
+    number_of_ecoli = rpois(n = number_of_dates, lambda = 20)
   )
 
 
 #### Write_csv
 write_csv(data, file = "data/raw_data/simulated.csv")
+
 
 
 

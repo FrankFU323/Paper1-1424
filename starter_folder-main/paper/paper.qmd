@@ -35,8 +35,7 @@ The data used in this paper is from Open Data Toronto and download by the openda
 The dataset is published by Toronto Public Health and is part of The Beach Water Sampling Program, which collects E. coli values from two different beaches. The data is updated daily, and the data used for this analysis spans from June 3, 2007, to September 8, 2024. The raw dataset contains 21,882 water quality samples testing for E. coli concentrations. The dataset also includes beach itendifiers, names, sample site names, collection dates for each sample, and geographic coordinates (latitude and longitude).
 
 ## Cleaned Data
-## Basic Summary of cleaned Dataset
-
+In the raw data provided by Toronto Public Health, there were missing values (NA). During the data cleaning process, rows containing these NA values were completely removed to ensure that the NA values would not affect the analysis output and to simplify the analysis. Since the raw data also contained some particularly large outlier values, those were also removed. The cleaned data only includes the necessary columns for analysis, such as collection date, E. coli, site name, and beach name. Figure 1 shows the cleaned data samples, listing the results of tests conducted at different locations on the same day.
 ```{r}
 #| include: false
 #| warning: false
@@ -84,6 +83,8 @@ ggplot(cleaned_data, aes(x = collection_date, y = e_coli)) +
 
 ```
 
+## Basic Summary of cleaned Dataset
+Figure 1 shows the attributes of the data, with most E. coli values being below 500, meaning there are 500 E. coli per 100 ml of water. However, the scatter plot also reveals that the data from 2020 stands out compared to other years, but a more precise graphical output is needed for a better understanding of the dataset. Therefore, in Table 2, a bar chart was used to show the total amount of valid data collected each year. It is clear that due to the COVID-19 pandemic, the data collected by Toronto Public Health in 2020 is significantly less compared to other years. Figure 2 also provides a calculation of the distribution of collected E. coli data. Based on Canada's water quality standard of 200 E. coli per 100 ml, about 78% of the data falls within this standard, meaning that approximately 78% of the days from 2007 to the present were safe for beach activities. However, based on Toronto's stricter standard of 100 E. coli per 100 ml, only around 60% of the data meets this standard, meaning that about 60% of the days were safe for beachgoers. However, considering the additional variables of location and date, it is not yet possible to draw a reasonable conclusion about the overall water quality. A more in-depth analysis will be conducted in Section 3.
 ```{r}
 #| label: fig-1
 #| fig-cap: Bills of penguins
@@ -126,6 +127,14 @@ kable(ecoli_distribution,
   row_spec(0, extra_css = "border-bottom: 2px solid black;")  
 ```
 
+## Dataset justification
+The reason for choosing this dataset is that, during this summer, there were news reports about several incidents of people defecating on Toronto beaches, with even photos of the feces circulating. This caused some panic among people in Toronto who were planning to visit the beach. To verify whether the beach closures were indeed caused by these incidents and to reduce potential bias, as well as out of personal interest, this paper uses data published by Toronto Public Health. The dataset spans 18 years, from 2007 to the present, containing E. coli test results for beach water quality. It effectively reveals the trends in water quality over the years and helps to project future trends, reducing doubts about the validity of the analysis due to a small data sample.
+
+
+# Result{#thi-data}
+
+## Studying the relationship between time and E. coli concentration
+
 ```{r}
 #| label: fig-3
 #| fig-cap: Bills of penguins
@@ -143,6 +152,8 @@ ggplot(avg_ecoli, aes(x = year, y = avg_ecoli)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 60, vjust = 0.5, hjust = 1))
 ```
+
+## Examing the portion of E.coli higher than the standard level by year
 
 ```{r}
 #| label: fig-4
@@ -163,6 +174,7 @@ ggplot(ecoli_portion, aes(x = year, y = proportion)) +
   theme_minimal()
 
 ```
+## Investigating the relationship with E.coli and site location
 
 ```{r}
 #| label: fig-5
@@ -200,34 +212,6 @@ kable(ecoli_site_count,
   row_spec(0, bold = TRUE) %>%
   row_spec(0, extra_css = "border-bottom: 2px solid black;")  
 ```
-
-# Model
-
-The goal of our modelling strategy is twofold. Firstly,...
-
-Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
-
-## Model set-up
-
-Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.  
-
-\begin{align} 
-y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
-\mu_i &= \alpha + \beta_i + \gamma_i\\
-\alpha &\sim \mbox{Normal}(0, 2.5) \\
-\beta &\sim \mbox{Normal}(0, 2.5) \\
-\gamma &\sim \mbox{Normal}(0, 2.5) \\
-\sigma &\sim \mbox{Exponential}(1)
-\end{align}
-
-We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
-
-
-### Model justification
-
-We expect a positive relationship between the size of the wings and time spent aloft. In particular...
-
-We can use maths by including latex between dollar signs, for instance $\theta$.
 
 
 # Results

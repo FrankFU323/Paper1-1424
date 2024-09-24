@@ -1,13 +1,11 @@
 ---
-title: "My title"
-subtitle: "My subtitle if needed"
+title: "E. coli Testing: Safeguarding Public Health"
 author: 
-  - First author
-  - Another author
+  - Tianrui Fu
 thanks: "Code and data are available at: LINK."
 date: today
 date-format: long
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+abstract: "Swimming in beaches with high E. coli levels can lead to gastrointestinal issues, rashes, and infections, particularly affecting young children, the elderly, and those with weakened immune systems. In 1998, the implementation of the Ministry of Health Beach Management Protocol project led the Toronto department to start collecting beach water quality data in 2007, aiming to reduce the incidence of waterborne diseases in the population. Third sentence. Fourth sentence."
 format: pdf
 number-sections: true
 bibliography: references.bib
@@ -22,36 +20,53 @@ library(tidyverse)
 library(palmerpenguins)
 ```
 
-
 # Introduction
 
-You can and should cross-reference sections and sub-sections. We use @citeR and @rohan.
+The increase in E. coli concentration is a serious problem for humans. Elevated concentrations make beach water unsafe, hindering safe human use. Although some strains of E. coli are harmless, pathogenic microorganisms may still be present. In cases of increased concentration, healthy individuals among those infected can recover on their own; however, vulnerable populations such as children, the elderly, and those with compromised immune systems may suffer more severe illnesses, including general gastrointestinal discomfort, rashes, ear and eye infections, and in severe cases, bloody diarrhea, kidney failure, and death. The rise in E. coli concentration is caused by various factors, such as the runoff of animal feces carrying pathogens from land or sewage systems, aging sewage pipelines, and wastewater infrastructure issues. Considering the rapid growth of E. coli and the associated public health risks, real-time monitoring of beach water quality is essential.
 
-The remainder of this paper is structured as follows. @sec-data....
+According to the requirements of the Ministry of Health Beach Management Protocol (January 1, 1998), the Beach Water Sampling Program for the City of Toronto was implemented to reduce the incidence of waterborne diseases. Toronto's beaches have been certified under the Blue Flag program. From June to September each year, the relevant departments in Toronto collect water samples daily from all regulated beaches in the city to test for E. coli bacteria concentrations.
 
-
+The number of E. coli in freshwater is determined by counting the number of yellow and yellow-brown colonies that grow after placing a 0.45-micron filter on m-TEC medium and incubating it at 35.0ºC for 22-24 hours. The water quality standard for E. coli in Ontario and federally is 200 E. coli per 100 milliliters of water, while Toronto's beach water quality standard is 100 E. coli per 100 milliliters of water. This article utilizes 22,000 data points collected by government departments from June to September from 2007 to 2024 to assess...
 
 # Data {#sec-data}
 
-Some of our data is of penguins (@fig-bills), from @palmerpenguins.
+## Raw Data
+The data used in this paper is from Open Data Toronto and download by the opendatatoronto library. The dataset is used to analyze whether the E.coli value in the beach during June and September is satisfy for people to swim. All the data analysis is through the @citeR 及以下软件包完成的：@tidyverse, @tinytex, @dplyr, @janitor, @ggplot2, @here, @kableExtra and @knitr.
+The dataset is published by Toronto Public Health and is part of The Beach Water Sampling Program, which collects E. coli values from two different beaches. The data is updated daily, and the data used for this analysis spans from June 3, 2007, to September 8, 2024. The raw dataset contains 21,882 water quality samples testing for E. coli concentrations. The dataset also includes beach itendifiers, names, sample site names, collection dates for each sample, and geographic coordinates (latitude and longitude).
+
+## Cleaned Data
+## Basic Summary of cleaned Dataset
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+#### Download library ####
+library(here)
+#### Read in the data ####
+cleaned_data <-
+  read_csv(
+    file = here::here("data","analysis_data", "analysis_data.csv"),
+    show_col_types = FALSE
+  )
+```
 
 ```{r}
 #| label: fig-bills
 #| fig-cap: Bills of penguins
 #| echo: false
-
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = "none") +
-  theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
+library(dplyr)
+library(knitr)
+library(kableExtra)
+selected_data <- cleaned_data %>%
+  filter(collection_date == as.Date("2024-09-01")) %>%
+  select(Name, collection_date, e_coli, site_name)
+kable(selected_data, col.names = c("Beach_Name", "Date", "E.coli", "Site_Name")) %>%
+  kable_styling() %>%
+  row_spec(0, bold = TRUE) %>%
+  row_spec(0, extra_css = "border-bottom: 2px solid black;")  
 ```
-
-Talk more about it.
-
-And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.)
 
 ```{r}
 #| label: fig-planes
@@ -60,19 +75,131 @@ And also planes (@fig-planes). (You can change the height and width, but don't w
 #| warning: false
 #| message: false
 
-analysis_data <- read_csv(here::here("data/analysis_data/analysis_data.csv"))
+library(ggplot2)
+library(lubridate)
 
-analysis_data |> 
-  ggplot(aes(x = width, y = length)) +
-  geom_point(alpha = 0.8) +
-  theme_minimal() +
-  labs(x = "Wing width (mm)",
-       y = "Wing length (mm)")
+ggplot(cleaned_data, aes(x = collection_date, y = e_coli)) +
+  geom_point() +
+  labs(title = "Scatter Plot without Outliers")
+
 ```
 
-Talk way more about it. 
+```{r}
+#| label: fig-1
+#| fig-cap: Bills of penguins
+#| echo: false
 
+#### download the library ####
+library(dplyr)
+library(ggplot2)
+#### draw the histogram ####
+yearcountdata <- cleaned_data %>%
+  mutate(year = format(as.Date(collection_date), "%Y")) %>%
+  group_by(year) %>%
+  summarize(datacount = n())
+ggplot(yearcountdata, aes(x = year, y = datacount)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = datacount), vjust = -0.5, size = 3) +
+  labs(title = "Number of observations by year", x ="Year", y = "Total observations each year") +
+  theme_minimal()
 
+```
+
+```{r}
+#| label: fig-2
+#| fig-cap: Bills of penguins
+#| echo: false
+
+library(knitr)
+library(kableExtra)
+ecoli_distribution <- cleaned_data %>%
+  mutate(ecoli_range = cut(e_coli, breaks = c(0, 50, 100, 200, Inf), right = FALSE,
+                           labels = c("0-50", "50-100", "100-200", ">200"))) %>%
+  group_by(ecoli_range) %>%
+  summarize(count = n()) %>%
+  mutate(percentage = (count / sum(count)) * 100)
+kable(ecoli_distribution,
+      col.names = c("E.Coli Levels", "Sample Count", "Portion"),
+      caption = "Portion of E.Coli levels in different ranges") %>%
+  kable_styling() %>%
+  row_spec(0, bold = TRUE) %>%
+  row_spec(0, extra_css = "border-bottom: 2px solid black;")  
+```
+
+```{r}
+#| label: fig-3
+#| fig-cap: Bills of penguins
+#| echo: false
+
+library(dplyr)
+library(ggplot2)
+avg_ecoli <- cleaned_data %>%
+  mutate(year = format(as.Date(collection_date), "%Y")) %>%
+  group_by(year) %>%
+  summarize(avg_ecoli = mean(e_coli, na.rm = TRUE))
+ggplot(avg_ecoli, aes(x = year, y = avg_ecoli)) + 
+  geom_point() +
+  labs(title = "Mean E.Coli levels by year", x = "Year", y = "Mean E.Coli") + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 60, vjust = 0.5, hjust = 1))
+```
+
+```{r}
+#| label: fig-4
+#| fig-cap: Bills of penguins
+#| echo: false
+library(dplyr)
+library(ggplot2)
+ecoli_portion <- cleaned_data %>%
+  mutate(year = format(as.Date(collection_date), "%Y")) %>%
+  group_by(year) %>%
+  summarize(total_samples = n(),
+            above200 = sum(e_coli > 200, na.rm = TRUE),
+            proportion = above200 / total_samples * 100)
+ggplot(ecoli_portion, aes(x = year, y = proportion)) + 
+  geom_col(fill = "darkgrey") +
+  labs(title = "Portion of higher than safe E.Coli level by year", 
+       x = "Year", y = "Portion(%)")+
+  theme_minimal()
+
+```
+
+```{r}
+#| label: fig-5
+#| fig-cap: Bills of penguins
+#| echo: false
+library(dplyr)
+library(ggplot2)
+avg_ecoli_site <- cleaned_data %>%
+  group_by(site_name) %>%
+  summarize(avg_ecoli = mean(e_coli, na.rm = TRUE))
+ggplot(avg_ecoli_site, aes(x = site_name , y = avg_ecoli)) + 
+  geom_point() +
+  labs(title = "Mean E.Coli levels by each site", x = "Site", y = "Mean E.Coli") + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 60, vjust = 0.5, hjust = 1))
+```
+
+```{r}
+#| label: fig-6
+#| fig-cap: Bills of penguins
+#| echo: false
+library(dplyr)
+library(knitr)
+library(kableExtra)
+ecoli_site_count <- cleaned_data %>%
+  group_by(site_name) %>%
+  summarize(total_samples = n(),
+            above200 = sum(e_coli > 200, na.rm = TRUE),
+            portion200 = above200 / total_samples * 100)
+
+kable(ecoli_site_count,
+      col.names = c("Site name", "Total Samples", "Above 200 count", "Portion(%)"),
+      caption = "Portion of E.Coli levels above safe level in different site") %>%
+  kable_styling() %>%
+  row_spec(0, bold = TRUE) %>%
+  row_spec(0, extra_css = "border-bottom: 2px solid black;")  
+```
 
 # Model
 
@@ -115,8 +242,7 @@ Our results are summarized in @tbl-modelresults.
 
 library(rstanarm)
 
-first_model <-
-  readRDS(file = here::here("models/first_model.rds"))
+
 ```
 
 ```{r}
@@ -126,13 +252,7 @@ first_model <-
 #| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
 #| warning: false
 
-modelsummary::modelsummary(
-  list(
-    "First model" = first_model
-  ),
-  statistic = "mad",
-  fmt = 2
-)
+
 ```
 
 
@@ -179,15 +299,7 @@ In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. Th
 #| fig-cap: "Examining how the model fits, and is affected by, the data"
 #| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
 
-pp_check(first_model) +
-  theme_classic() +
-  theme(legend.position = "bottom")
 
-posterior_vs_prior(first_model) +
-  theme_minimal() +
-  scale_color_brewer(palette = "Set1") +
-  theme(legend.position = "bottom") +
-  coord_flip()
 ```
 
 ## Diagnostics
@@ -206,9 +318,6 @@ posterior_vs_prior(first_model) +
 #| fig-subcap: ["Trace plot", "Rhat plot"]
 #| layout-ncol: 2
 
-plot(first_model, "trace")
-
-plot(first_model, "rhat")
 ```
 
 

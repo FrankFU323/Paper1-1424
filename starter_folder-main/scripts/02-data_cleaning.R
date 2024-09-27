@@ -11,16 +11,21 @@
 library(tidyverse)
 
 #### Clean data ####
+# First, to transfer the capital and lower-case letter
+# Second, to set up the outlier dividing value and remove the values which
+# larger than the outliers
+# Third, write the cleaned data as analysis_data
 raw_data <- read_csv("data/raw_data/pre_data.csv")
 
 cleaned_data <- raw_data |>
   janitor::clean_names() |> 
-  select(beach_name, collection_date, site_name, e_coli) |> 
+  select(name, collection_date, site_name, e_coli) |> 
   mutate(
     e_coli = as.numeric(e_coli),
-    Date = lubridate::ymd(collection_date)
+    Date = lubridate::ymd(collection_date),
+    site_name = sub("W", "", site_name)
   ) |> 
-  rename(Name = beach_name) |> 
+  rename(beach_name = name) |>
   tidyr::drop_na()
 
 threshold <- 2000

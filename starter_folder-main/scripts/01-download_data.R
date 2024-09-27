@@ -14,23 +14,13 @@ library(tidyverse)
 
 
 #### Download data ####
-
-# get package
-package <- show_package("92b0de8f-1ada-44a7-84cf-adc04868e990")
-
-# get all resources for this package
-resources <- list_package_resources("92b0de8f-1ada-44a7-84cf-adc04868e990")
-
-# identify datastore resources; by default, Toronto Open Data sets datastore resource format to CSV for non-geospatial and GeoJSON for geospatial resources
-datastore_resources <- filter(resources, tolower(format) %in% c('csv', 'geojson'))
-
-# load the first datastore resource as a sample
-data <- filter(datastore_resources, row_number()==1) %>% get_resource()
+# source: https://open.toronto.ca/dataset/toronto-beaches-water-quality/
+torontobeach_waterquality <-
+  list_package_resources("toronto-beach-water-quality") |>
+  filter(name == "toronto-beaches-water-quality - 4326.csv") |>
+  get_resource()
 
 #### Save data ####
 write_csv(data, "data/raw_data/pre_data.csv") 
-
-         
-
 
          

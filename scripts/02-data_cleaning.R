@@ -11,12 +11,11 @@
 library(tidyverse)
 
 #### Clean data ####
-# First, to transfer the capital and lower-case letter
-# Second, to set up the outlier dividing value and remove the values which
-# larger than the outliers
-# Third, write the cleaned data as analysis_data
 raw_data <- read_csv("data/raw_data/pre_data.csv")
 
+# First, to transfer the capital and lower-case letter. 
+# Select the four columns and transfer the column of e.coli to number style. 
+# Find the column of site name and remove the letter "M".
 cleaned_data <- raw_data |>
   janitor::clean_names() |> 
   select(name, collection_date, site_name, e_coli) |> 
@@ -28,12 +27,13 @@ cleaned_data <- raw_data |>
   rename(beach_name = name) |>
   tidyr::drop_na()
 
-threshold <- 2000
+# Second, to set up the dividing value, keep the value which smaller than the dividing value and remove the larger one.
+remove_value <- 2000
 cleaned_data <- cleaned_data %>%
-  mutate(is_outlier = ifelse(e_coli > threshold, "Outlier", "Normal"))
+  mutate(is_outlier = ifelse(e_coli > remove_value, "Outlier", "Normal"))
 
 cleaned_data <- cleaned_data %>%
-  filter(e_coli <= threshold)
+  filter(e_coli <= remove_value)
 
 #### Save data ####
 write_csv(cleaned_data, "data/analysis_data/analysis_data.csv")

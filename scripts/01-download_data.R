@@ -21,6 +21,4 @@ torontobeach_waterquality <-
   get_resource()
 
 #### Save data ####
-write_csv(data, "data/raw_data/pre_data.csv") 
-
-         
+write_csv(data, "data/raw_data/pre_data.csv")

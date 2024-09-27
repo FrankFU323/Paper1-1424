@@ -1,7 +1,7 @@
 #### Preamble ####
 # Purpose: Simulates data
 # Author: Tianrui Fu
-# Date: 21 September 2024 
+# Date: 21 September 2024
 # Contact: tianrui.fu@mail.utoronto.ca
 # License: MIT
 # Pre-requisites: None
@@ -30,18 +30,20 @@ data <-
       ),
     ),
     number_of_ecoli = round(runif(n = number_of_dates, min = 0, max = 2000)),
-    sitename = sample(c(sample(17:23, number_of_dates, replace = TRUE), 
-                        sample(29:33, number_of_dates, replace = TRUE)), 
-                      number_of_dates, replace = TRUE),
-    beachname = ifelse(sitename %in% 17:23, 
-                       "Sunnyside Beach", "Marie Curtis Park East Beach")
+    sitename = sample(
+      c(
+        sample(17:23, number_of_dates, replace = TRUE),
+        sample(29:33, number_of_dates, replace = TRUE)
+      ),
+      number_of_dates,
+      replace = TRUE
+    ),
+    beachname = ifelse(sitename %in% 17:23,
+      "Sunnyside Beach", "Marie Curtis Park East Beach"
+    )
   )
 
 
 
 #### Write_csv
 write_csv(data, file = "data/raw_data/simulated.csv")
-
-
-
-

@@ -18,7 +18,6 @@ bibliography: references.bib
 #| message: false
 
 library(tidyverse)
-library(palmerpenguins)
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
@@ -63,7 +62,7 @@ library(kableExtra)
 selected_data <- cleaned_data %>%
   filter(collection_date == as.Date("2024-09-01")) %>%
   select(beach_name, collection_date, e_coli, site_name)
-kable(selected_data, col.names = c("Beach_Name", "Date", "E.coli", "Site_Name")) %>%
+kable(selected_data, col.names = c("Beach Name", "Date", "E.coli", "Site Location")) %>%
   kable_styling() %>%
   row_spec(0, bold = TRUE) %>%
   row_spec(0, extra_css = "border-bottom: 2px solid black;")  
@@ -80,7 +79,9 @@ library(ggplot2)
 library(lubridate)
 
 ggplot(cleaned_data, aes(x = collection_date, y = e_coli)) +
-  geom_point()
+  geom_point() +
+  labs(x = "Collection Date", y = "E.Coli") +
+  theme_bw()
 
 ```
 
@@ -103,10 +104,10 @@ yearcountdata <- cleaned_data %>%
   summarize(datacount = n())
 ggplot(yearcountdata, aes(x = year, y = datacount)) +
   geom_bar(stat = "identity", fill = "#7eb0d5") +
-  geom_text(aes(label = datacount), vjust = -0.5, size = 1) +
+  geom_text(aes(label = datacount), vjust = -1, size = 2) +
   labs(x ="Year", y = "Total observations each year") +
   theme_minimal() +
-  theme(axis.text.x = element_text(size = 5, angle = 40, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(size = 7, angle = 30, vjust = 0.5, hjust = 1))
 
 ```
 
@@ -139,7 +140,7 @@ The reason for choosing this dataset is that, during this summer, there were new
 ## Studying the relationship between time and E. coli concentration
 
 Though @sec-data-third finds that about 60% of the beaches meet the Toronto Beach water quality standard, we need to further explore the changes in the average E.coli concentration over the years and whether the average values truly reflect that the water quality meets the standard more than half of the time. @fig-scatter-mean-year shows the yearly average E.coli values. We can observe that none of the years had an average E.coli concentration that meets the stricter Toronto Beach standard, but only four years exceeded the Canadian water quality standard.
-The average E.coli concentration was at its lowest in 2016, approaching 100 E.coli/100ml (Toronto Beach standard), and peaked in 2008, nearly reaching 300 E.coli/100ml. Over time, while there was a slight increase in the average E.coli concentration from 2016 to 2020, the overall trend shows a decline, stabilizing around 150 E.coli/100ml. This trend suggests that while water quality has improved over the years, it still fluctuates and does not consistently meet the Toronto Beach water quality standard.
+The average E.coli concentration was at its lowest in 2016 which is about 107 E.coli/100ml, approaching 100 E.coli/100ml (Toronto Beach standard), and peaked in 2008, about 240 E.coli/100ml. Over time, while there was a slight increase in the average E.coli concentration from 2016 to 2020, the overall trend shows a decline, stabilizing around 150 E.coli/100ml. This trend suggests that while water quality has improved over the years, it still fluctuates and does not consistently meet the Toronto Beach water quality standard.
 
 ```{r, fig.pos= 'H', fig.width=8, fig.height=4}
 #| label: fig-scatter-mean-year
@@ -151,17 +152,18 @@ library(ggplot2)
 avg_ecoli <- cleaned_data %>%
   mutate(year = format(as.Date(collection_date), "%Y")) %>%
   group_by(year) %>%
-  summarize(avg_ecoli = mean(e_coli, na.rm = TRUE))
+  summarize(avg_ecoli = round(mean(e_coli, na.rm = TRUE)))
 ggplot(avg_ecoli, aes(x = year, y = avg_ecoli)) + 
   geom_point() +
+  geom_text(aes(label = avg_ecoli), vjust = -2, size = 2) +
   labs(x = "Year", y = "Mean E.Coli") + 
   theme_minimal() +
-  theme(axis.text.x = element_text(size = 5, angle = 40, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(size = 7, angle = 30, vjust = 0.5, hjust = 1))
 ```
 
 ## Examing the Proportion of E.coli higher than the standard level by year
 
-To further understand the data, we calculated the proportion of E.coli levels exceeding the Toronto Beach standard each year, providing a clearer view of water quality trends at Toronto beaches. From @fig-scatter-mean-year, we can see that the highest and lowest average E.coli concentrations, observed in 2008 and 2016 respectively, correspond to the highest and lowest proportions of exceedance. In 2008, over 50% of the samples exceeded the Toronto standard, while in 2016, this proportion dropped to as low as 20%. Additionally, the overall proportion of exceedances has been declining over time and has stabilized in recent years.
+To further understand the data, we calculated the proportion of E.coli levels exceeding the Toronto Beach standard each year, providing a clearer view of water quality trends at Toronto beaches. From @fig-scatter-mean-year, we can see that the highest and lowest average E.coli concentrations, observed in 2008 and 2016 respectively, correspond to the highest and lowest proportions of exceedance. In 2008, over 50% of the samples exceeded the Toronto standard, while in 2016, this proportion dropped to as low as 21%. Additionally, the overall proportion of exceedances has been declining over time and has stabilized in recent years.
 
 ```{r, fig.pos= 'H', fig.width=8, fig.height=4}
 #| label: fig-histogram-proportion
@@ -169,17 +171,18 @@ To further understand the data, we calculated the proportion of E.coli levels ex
 #| echo: false
 library(dplyr)
 library(ggplot2)
-ecoli_portion <- cleaned_data %>%
+ecoli_proportion <- cleaned_data %>%
   mutate(year = format(as.Date(collection_date), "%Y")) %>%
   group_by(year) %>%
   summarize(total_samples = n(),
             above100 = sum(e_coli > 100, na.rm = TRUE),
-            proportion = above100 / total_samples * 100)
-ggplot(ecoli_portion, aes(x = year, y = proportion)) + 
+            proportion = round(above100 / total_samples * 100))
+ggplot(ecoli_proportion, aes(x = year, y = proportion)) + 
   geom_col(fill = "#7eb0d5") +
-  labs(x = "Year", y = "Portion(%)")+
+  geom_text(aes(label = proportion), vjust = -1, size = 2) +
+  labs(x = "Year", y = "Proportion(%)")+
   theme_minimal() +
-  theme(axis.text.x = element_text(size = 5, angle = 40, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(size = 7, angle = 30, vjust = 0.5, hjust = 1))
 
 ```
 ## Investigating the relationship with E.coli and site location
@@ -194,12 +197,13 @@ library(dplyr)
 library(ggplot2)
 avg_ecoli_site <- cleaned_data %>%
   group_by(site_name) %>%
-  summarize(avg_ecoli = mean(e_coli, na.rm = TRUE))
+  summarize(avg_ecoli = round(mean(e_coli, na.rm = TRUE)))
 ggplot(avg_ecoli_site, aes(x = site_name , y = avg_ecoli)) + 
   geom_point() +
-  labs(x = "Site", y = "Mean E.Coli") + 
+  geom_text(aes(label = avg_ecoli), vjust = -2, size = 2) +
+  labs(x = "Site location", y = "Mean E.coli") +
   theme_minimal() +
-  theme(axis.text.x = element_text(size = 5, angle = 40, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(size = 7, angle = 30, vjust = 0.5, hjust = 1))
 ```
 
 ```{r, fig.pos= 'H', fig.width=8, fig.height=4}

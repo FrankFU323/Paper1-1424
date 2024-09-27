@@ -17,5 +17,5 @@ The repo is structured as:
 
 
 ## Statement on LLM usage
-Completion of aspects of the code and polishment of discussion text part with the help of ChatGPT-4o. . The entire chat history is available in inputs/llms/usage.txt.
+Completion of aspects of the code and polishment of text part with the help of ChatGPT-4o. . The entire chat history is available in inputs/llms/usage.txt.
 

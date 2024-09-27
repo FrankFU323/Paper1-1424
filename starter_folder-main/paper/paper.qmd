@@ -12,13 +12,14 @@ number-sections: true
 bibliography: references.bib
 ---
 
-```{r}
+```{r setup, include=FALSE}
 #| include: false
 #| warning: false
 #| message: false
 
 library(tidyverse)
 library(palmerpenguins)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
 # Introduction {#sec-intro}
@@ -27,7 +28,7 @@ The increase in E. coli concentration is a serious problem for humans. Elevated 
 
 According to the requirements of the Ministry of Health Beach Management Protocol (January 1, 1998), the Beach Water Sampling Program for the City of Toronto was implemented to reduce the incidence of waterborne diseases. Toronto's beaches have been certified under the Blue Flag program. From June to September each year, the relevant departments in Toronto collect water samples daily from all regulated beaches in the city to test for E.coli bacteria concentrations.
 
-The number of E.coli in freshwater is determined by counting the number of yellow and yellow-brown colonies that grow after placing a 0.45-micron filter on m-TEC medium and incubating it at 35.0ºC for 22-24 hours. The water quality standard for E.coli in Ontario and federally is 200 E.coli per 100 milliliters of water, while Toronto's beach water quality standard is 100 E.coli per 100 milliliters of water. This article utilizes 22,000 data points collected by government departments from June to September from 2007 to 2024 to assess whether the E.coli is much more than the Toronto water quality standard. Meanwhile, it try to prove if the E.coli is influenced by the change of time and site location.
+The number of E.coli in freshwater is determined by counting the number of yellow and yellow-brown colonies that grow after placing a 0.45-micron filter on m-TEC medium and incubating it at 35.0ºC for 22-24 hours. The water quality standard for E.coli in Ontario and federally is 200 E.coli per 100 milliliters of water, while Toronto beach water quality standard is 100 E.coli per 100 milliliters of water. This article utilizes 22,000 data points collected by government departments from June to September from 2007 to 2024 to assess whether the E.coli is much more than the Toronto water quality standard. Meanwhile, it try to prove if the E.coli is influenced by the change of time and site location.
 
 # Data {#sec-data}
 
@@ -36,7 +37,7 @@ The data used in this paper is from Open Data Toronto and download by the @citeo
 The dataset is published by Toronto Public Health and is part of The Beach Water Sampling Program, which collects E. coli values from two different beaches. The data is updated daily, and the data used for this analysis spans from June 3, 2007, to September 8, 2024. The raw dataset contains 21,882 water quality samples testing for E.coli concentrations. The dataset also includes beach itendifiers, names, sample site names, collection dates for each sample, and geographic coordinates (latitude and longitude).
 
 ## Cleaned Data
-The data cleaning is processed by @citeR. For detailed steps, please refer to the{@sec-appendix}.
+The data cleaning is processed by @citeR. For detailed steps, please refer to the @sec-appendix.
 
 ```{r}
 #| include: false
@@ -52,8 +53,7 @@ cleaned_data <-
     show_col_types = FALSE
   )
 ```
-
-```{r, fig.pos='H'}
+```{r, fig.pos= 'H', fig.width=8, fig.height=4}
 #| label: tbl-data-summary
 #| tbl-cap: E.coli quality summary by date
 #| echo: false
@@ -62,14 +62,14 @@ library(knitr)
 library(kableExtra)
 selected_data <- cleaned_data %>%
   filter(collection_date == as.Date("2024-09-01")) %>%
-  select(Name, collection_date, e_coli, site_name)
+  select(beach_name, collection_date, e_coli, site_name)
 kable(selected_data, col.names = c("Beach_Name", "Date", "E.coli", "Site_Name")) %>%
   kable_styling() %>%
   row_spec(0, bold = TRUE) %>%
   row_spec(0, extra_css = "border-bottom: 2px solid black;")  
 ```
 
-```{r, fig.pos='H'}
+```{r, fig.pos= 'H', fig.width=8, fig.height=4}
 #| label: fig-scatter-plot
 #| fig-cap: Relationship between wing length and width
 #| echo: false
@@ -84,11 +84,11 @@ ggplot(cleaned_data, aes(x = collection_date, y = e_coli)) +
 
 ```
 
-## Basic Summary of cleaned Dataset
+## Basic Summary of cleaned Dataset {#sec-data-third}
 
-@fig-scatter-plot shows the attributes of the data, with most E.coli values being below 500, meaning there are 500 E.coli per 100 ml of water. However, the scatter plot also reveals that the data from 2020 stands out compared to other years, but a more precise graphical output is needed for a better understanding of the dataset. Therefore, in @fig-histogram, a bar chart was used to show the total amount of valid data collected each year. It is clear that due to the COVID-19 pandemic, the data collected by Toronto Public Health in 2020 is significantly less compared to other years. @tbl-proportion also provides a calculation of the distribution of collected E.coli data. Based on Canada's water quality standard of 200 E.coli per 100 ml, about 78% of the data falls within this standard, meaning that approximately 78% of the days from 2007 to the present were safe for beach activities. However, based on Toronto's stricter standard of 100 E.coli per 100 ml, only around 60% of the data meets this standard, meaning that about 60% of the days were safe for beachgoers. However, considering the additional variables of location and date, it is not yet possible to draw a reasonable conclusion about the overall water quality. A more in-depth analysis will be conducted in @sec-result.
+@fig-scatter-plot shows the attributes of the data, with most E.coli values being below 500, meaning there are 500 E.coli per 100 ml of water. However, the scatter plot also reveals that the data from 2020 stands out compared to other years, but a more precise graphical output is needed for a better understanding of the dataset. Therefore, in @fig-histogram, a bar chart was used to show the total amount of valid data collected each year. It is clear that due to the COVID-19 pandemic, the data collected by Toronto Public Health in 2020 is significantly less compared to other years. @tbl-proportion also provides a calculation of the distribution of collected E.coli data. Based on Canada's water quality standard of 200 E.coli per 100 ml, about 78% of the data falls within this standard, meaning that approximately 78% of the days from 2007 to the present were safe for beach activities. However, based on Toronto stricter standard of 100 E.coli per 100 ml, only around 60% of the data meets this standard, meaning that about 60% of the days were safe for beachgoers. However, considering the additional variables of location and date, it is not yet possible to draw a reasonable conclusion about the overall water quality. A more in-depth analysis will be conducted in @sec-result.
 
-```{r, fig.pos='H'}
+```{r, fig.pos= 'H', fig.width=8, fig.height=4}
 #| label: fig-histogram
 #| fig-cap: Number of observations by year
 #| echo: false
@@ -102,15 +102,15 @@ yearcountdata <- cleaned_data %>%
   group_by(year) %>%
   summarize(datacount = n())
 ggplot(yearcountdata, aes(x = year, y = datacount)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = datacount), vjust = -0.5, size = 2) +
+  geom_bar(stat = "identity", fill = "#7eb0d5") +
+  geom_text(aes(label = datacount), vjust = -0.5, size = 1) +
   labs(x ="Year", y = "Total observations each year") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 60, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(size = 5, angle = 40, vjust = 0.5, hjust = 1))
 
 ```
 
-```{r, fig.pos='H'}
+```{r, fig.pos= 'H', fig.width=8, fig.height=4}
 #| label: tbl-proportion
 #| tbl-cap: Proportion of E.coli levels in different ranges
 #| echo: false
@@ -124,7 +124,7 @@ ecoli_distribution <- cleaned_data %>%
   summarize(count = n()) %>%
   mutate(percentage = (count / sum(count)) * 100)
 kable(ecoli_distribution,
-      col.names = c("E.Coli Levels", "Sample Count", "Portion"))%>%
+      col.names = c("E.Coli Levels", "Sample Count", "Proportion"))%>%
   kable_styling() %>%
   row_spec(0, bold = TRUE) %>%
   row_spec(0, extra_css = "border-bottom: 2px solid black;") 
@@ -138,11 +138,11 @@ The reason for choosing this dataset is that, during this summer, there were new
 
 ## Studying the relationship between time and E. coli concentration
 
-Though section 2.3 finds that about 60% of the beaches meet the Toronto Beach water quality standard, we need to further explore the changes in the average E.coli concentration over the years and whether the average values truly reflect that the water quality meets the standard more than half of the time. Figure 3 shows the yearly average E.coli values. Through Figure 4, we can observe that none of the years had an average E.coli concentration that meets the stricter Toronto Beach standard, only four years exceeded the Canadian water quality standard.
+Though @sec-data-third finds that about 60% of the beaches meet the Toronto Beach water quality standard, we need to further explore the changes in the average E.coli concentration over the years and whether the average values truly reflect that the water quality meets the standard more than half of the time. @fig-scatter-mean-year shows the yearly average E.coli values. We can observe that none of the years had an average E.coli concentration that meets the stricter Toronto Beach standard, but only four years exceeded the Canadian water quality standard.
 The average E.coli concentration was at its lowest in 2016, approaching 100 E.coli/100ml (Toronto Beach standard), and peaked in 2008, nearly reaching 300 E.coli/100ml. Over time, while there was a slight increase in the average E.coli concentration from 2016 to 2020, the overall trend shows a decline, stabilizing around 150 E.coli/100ml. This trend suggests that while water quality has improved over the years, it still fluctuates and does not consistently meet the Toronto Beach water quality standard.
 
-```{r, fig.pos='H'}
-#| label: fig-scatter
+```{r, fig.pos= 'H', fig.width=8, fig.height=4}
+#| label: fig-scatter-mean-year
 #| fig-cap: Mean E.coli levels by year
 #| echo: false
 
@@ -156,14 +156,14 @@ ggplot(avg_ecoli, aes(x = year, y = avg_ecoli)) +
   geom_point() +
   labs(x = "Year", y = "Mean E.Coli") + 
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 60, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(size = 5, angle = 40, vjust = 0.5, hjust = 1))
 ```
 
-## Examing the portion of E.coli higher than the standard level by year
+## Examing the Proportion of E.coli higher than the standard level by year
 
-To further understand the data, we calculated the proportion of E.coli levels exceeding the Toronto Beach standard each year, providing a clearer view of water quality trends at Toronto beaches. From Figure 4, we can see that the highest and lowest average E.coli concentrations, observed in 2008 and 2016 respectively, correspond to the highest and lowest proportions of exceedance. In 2008, over 50% of the samples exceeded the Toronto standard, while in 2016, this proportion dropped to as low as 20%. Additionally, the overall proportion of exceedances has been declining over time and has stabilized in recent years.
+To further understand the data, we calculated the proportion of E.coli levels exceeding the Toronto Beach standard each year, providing a clearer view of water quality trends at Toronto beaches. From @fig-scatter-mean-year, we can see that the highest and lowest average E.coli concentrations, observed in 2008 and 2016 respectively, correspond to the highest and lowest proportions of exceedance. In 2008, over 50% of the samples exceeded the Toronto standard, while in 2016, this proportion dropped to as low as 20%. Additionally, the overall proportion of exceedances has been declining over time and has stabilized in recent years.
 
-```{r, fig.pos='H'}
+```{r, fig.pos= 'H', fig.width=8, fig.height=4}
 #| label: fig-histogram-proportion
 #| fig-cap: Proportion of higher than safe E.Coli level by year
 #| echo: false
@@ -176,18 +176,18 @@ ecoli_portion <- cleaned_data %>%
             above100 = sum(e_coli > 100, na.rm = TRUE),
             proportion = above100 / total_samples * 100)
 ggplot(ecoli_portion, aes(x = year, y = proportion)) + 
-  geom_col(fill = "darkgrey") +
+  geom_col(fill = "#7eb0d5") +
   labs(x = "Year", y = "Portion(%)")+
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 60, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(size = 5, angle = 40, vjust = 0.5, hjust = 1))
 
 ```
 ## Investigating the relationship with E.coli and site location
 
-By observing the trend of average E.coli levels across testing sites, as shown in Figure 5, we can gain further insights into the data. The E.coli exceedance percentages for each site are presented in Table 2. Sites 17W-23W correspond to Sunnyside Beach, while sites 29W-33W are located at Marie Curtis Park East Beach. Although all of these sites exceed Toronto’s beach standards, the E.coli levels at sites 17W-23W are generally lower than those at sites 29W-33W. The lowest E.coli levels were recorded at the 20W testing site. Table 2 also shows that the data from site 23W is noticeably lower than the other sites, making it less significant for reference. The exceedance percentage at site 20W is the lowest, at 35.09%, and the exceedance rates for most sites range between 30% and 40%.
+By observing the trend of average E.coli levels across testing sites, as shown in @fig-scatter-mean-site, we can gain further insights into the data. The E.coli exceedance percentages for each site are presented in @tbl-proportion-site. Sites 17W-23W correspond to Sunnyside Beach, while sites 29W-33W are located at Marie Curtis Park East Beach. Although all of these sites exceed Toronto’s beach standards, the E.coli levels at sites 17W-23W are generally lower than those at sites 29W-33W. The lowest E.coli levels were recorded at the 20W testing site. @tbl-proportion-site so shows that the data from site 23W is noticeably lower than the other sites, making it less significant for reference. The exceedance percentage at site 20W is the lowest, at 35.09%, and the exceedance rates for most sites range between 30% and 40%.
 
-```{r, fig.pos='H'}
-#| label: fig-scatter-mean-E.coli-site
+```{r, fig.pos= 'H', fig.width=8, fig.height=4}
+#| label: fig-scatter-mean-site
 #| fig-cap: Mean E.Coli levels by each site
 #| echo: false
 library(dplyr)
@@ -199,12 +199,12 @@ ggplot(avg_ecoli_site, aes(x = site_name , y = avg_ecoli)) +
   geom_point() +
   labs(x = "Site", y = "Mean E.Coli") + 
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 60, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(size = 5, angle = 40, vjust = 0.5, hjust = 1))
 ```
 
-```{r, fig.pos='H'}
+```{r, fig.pos= 'H', fig.width=8, fig.height=4}
 #| label: tbl-proportion-site
-#| tbl-cap: Portion of E.Coli levels above safe level in different site
+#| tbl-cap: Proportion of E.Coli levels above safe level in different site
 #| echo: false
 library(dplyr)
 library(knitr)
@@ -216,7 +216,7 @@ ecoli_site_count <- cleaned_data %>%
             portion100 = above100 / total_samples * 100)
 
 kable(ecoli_site_count,
-      col.names = c("Site name", "Total Samples", "Above 100 count", "Portion(%)")) %>%
+      col.names = c("Site name", "Total Samples", "Above 100 count", "Proportion(%)")) %>%
   kable_styling() %>%
   row_spec(0, bold = TRUE) %>%
   row_spec(0, extra_css = "border-bottom: 2px solid black;")  
@@ -227,10 +227,10 @@ kable(ecoli_site_count,
 # Discussion {#sec-discussion}
 
 ## The time influence E.coli
-From a time perspective, based on the information provided in the previous section's graphs and tables, there have been significant changes in Toronto beach water quality between 2007 and 2024. Particularly in 2008, E.coli levels peaked, with an average concentration approaching 300 E.coli/100ml. After that, the E.coli levels showed a downward trend and became more stable. This result may be related to several factors mentioned in the introduction, such as animal feces, human activities, and the aging of the stormwater drainage system. Based on the evidence provided by the trend in Figure 3, there is a clear negative correlation between the average E.coli levels and time. However, since the average value alone cannot be used as a final indicator to judge the trend, we can refer to the percentage of exceedance bars in Figure 4. The exceedance rate of E.coli in 2008 exceeded 50%, indicating that water quality from June to September of that year was poor, leading to reduced activities and potential impacts on health and hygiene. In contrast, 2016 had the lowest E.coli levels, being closest to Toronto's beach water quality standard of 100 E.coli/100ml, with an exceedance rate of only about 20%. This may be related to the government's efforts to improve the beach environment and favorable weather conditions from June to September. Data from 2020 was limited due to collection restrictions caused by the COVID-19 pandemic, but there was no significant increase compared to other years, indicating that the overall water quality remained stable. Over time, both graphs show that after two peaks, E.coli levels have generally declined and stabilized.
+From a time perspective, based on the information provided in the previous section's graphs and tables, there have been significant changes in Toronto beach water quality between 2007 and 2024. Particularly in 2008, E.coli levels peaked, with an average concentration approaching 300 E.coli/100ml. After that, the E.coli levels showed a downward trend and became more stable. This result may be related to several factors mentioned in the introduction, such as animal feces, human activities, and the aging of the storm water drainage system. Based on the evidence provided by the trend in Figure 3, there is a clear negative correlation between the average E.coli levels and time. However, since the average value alone cannot be used as a final indicator to judge the trend, we can refer to the percentage of exceedance bars in @fig-histogram-proportion. The exceedance rate of E.coli in 2008 exceeded 50%, indicating that water quality from June to September of that year was poor, leading to reduced activities and potential impacts on health and hygiene. In contrast, 2016 had the lowest E.coli levels, being closest to Toronto beach water quality standard of 100 E.coli/100ml, with an exceedance rate of only about 20%. This may be related to the government's efforts to improve the beach environment and favorable weather conditions from June to September. Data from 2020 was limited due to collection restrictions caused by the COVID-19 pandemic, but there was no significant increase compared to other years, indicating that the overall water quality remained stable. Over time, both graphs show that after two peaks, E.coli levels have generally declined and stabilized.
 
 ## Whether the Site location influence E.coli
-In addition to time factors, evaluating whether the test locations affect E.coli levels can further reveal water quality differences across various measurement sites. Based on Figure 5, we can clearly see that the average E.coli levels vary significantly depending on the test location. E.coli levels at Sunnyside Beach are generally lower, indicating relatively better water quality in this area, especially at the 20W test site, where the exceedance rate is only 35.08866%, according to Table 3. On the other hand, at the Marie Curtis Park East Beach, E.coli levels are relatively higher, particularly at the 29W and 33W test sites, where exceedance rates are close to 40%. However, although differences exist between test sites, the average levels at all sites still exceed Toronto’s water quality standards, though they are below Canadian water quality standards. Since average concentration alone cannot fully determine whether the water quality of an area is non-compliant, the calculation of exceedance rates in Table 2 helps reveal that only a small portion of water quality is non-compliant. The high exceedance values contribute to the elevated averages. By calculating exceedance rates by test location, the analysis becomes more insightful and evidence-based, providing more convincing results.
+In addition to time factors, evaluating whether the test locations affect E.coli levels can further reveal water quality differences across various measurement sites. Based on @fig-scatter-mean-site, we can clearly see that the average E.coli levels vary significantly depending on the test location. E.coli levels at Sunnyside Beach are generally lower, indicating relatively better water quality in this area, especially at the 20W test site, where the exceedance rate is only 35.08866%, according to @tbl-proportion-site. On the other hand, at the Marie Curtis Park East Beach, E.coli levels are relatively higher, particularly at the 29W and 33W test sites, where exceedance rates are close to 40%. However, although differences exist between test sites, the average levels at all sites still exceed Toronto water quality standards, though they are below Canadian water quality standards. Since average concentration alone cannot fully determine whether the water quality of an area is non-compliant, the calculation of exceedance rates in Table 2 helps reveal that only a small proportion of water quality is non-compliant. The high exceedance values contribute to the elevated averages. By calculating exceedance rates by test location, the analysis becomes more insightful and evidence-based, providing more convincing results.
 
 ## Conclusion
 Overall, through the analysis of E.coli data from 2007 to 2024 in Toronto beaches, we have uncovered trends in concentration changes over time and across different locations. While there has been an improvement in overall water quality, some years and measurement sites still exhibit high E.coli concentration exceedances. Additionally, the influence of time on E.coli levels cannot be fully confirmed due to the variability of factors other than data and the uncertain governmental interventions.
@@ -238,15 +238,12 @@ Overall, through the analysis of E.coli data from 2007 to 2024 in Toronto beache
 ## Limitations and Next Step
 Although the visualizations from the graphs and tables provide an overview of E.coli concentrations in Toronto beaches over the past 18 years, there remain limitations and the need for more detailed data to address these issues. The article outlines the overall concentration trend, but Toronto Public Health did not mention whether interventions were conducted in the middle years, which may explain the overall downward trend in concentration. To avoid the impact of outliers on average value plots, this study excluded large outliers at the start of the analysis. However, TPH did not specify whether all data were accurate, so the analysis after removing some data may lack reference value.
 
-Additionally, while there were many measurement points, the beach locations were limited to only two, narrowing the dataset's scope. As a result, the data may not fully represent the trends in Toronto's beach water quality, leading to potential inaccuracies in observations and analysis. Future analyses could increase the number of beaches to provide more comprehensive data and improve credibility. Moreover, by controlling for other variables and confirming outliers, tracking E.coli levels from the same source over time or by location would provide deeper insights into beach water quality, helping the government take effective intervention measures.
-
-
+Additionally, while there were many measurement points, the beach locations were limited to only two, narrowing the scope of dataset. As a result, the data may not fully represent the trends in Toronto beach water quality, leading to potential inaccuracies in observations and analysis. Future analyses could increase the number of beaches to provide more comprehensive data and improve credibility. Moreover, by controlling for other variables and confirming outliers, tracking E.coli levels from the same source over time or by location would provide deeper insights into beach water quality, helping the government take effective intervention measures.
 
 \newpage
 
-
 # Appendix {#sec-appendix}
-In the raw data provided by Toronto Public Health, there were missing values (NA). During the data cleaning process, rows containing these NA values were completely removed to ensure that the NA values would not affect the analysis output and to simplify the analysis. Since the raw data also contained some particularly large outliers, those were also removed. The cleaned data only includes the necessary columns for analysis, such as collection date, E.coli, site name, and beach name. Figure 1 shows the cleaned data samples, listing the results of tests conducted at different locations on the same day.
+In the raw data provided by Toronto Public Health, there were missing values (NA). During the data cleaning process, rows containing these NA values were completely removed to ensure that the NA values would not affect the analysis output and to simplify the analysis. Since the raw data also contained some particularly large outliers, those were also removed. We also removed the "W" in the site location name which is easy for us to simulate, test and analysis dataset. The cleaned data only includes the necessary columns for analysis, such as collection date, E.coli, site name, and beach name. Figure 1 shows the cleaned data samples, listing the results of tests conducted at different locations on the same day.
 
 \newpage
 

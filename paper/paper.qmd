@@ -84,7 +84,6 @@ ggplot(cleaned_data, aes(x = collection_date, y = e_coli)) +
   theme_bw()
 
 ```
-
 ## Basic Summary of cleaned Dataset {#sec-data-third}
 
 @fig-scatter-plot shows the attributes of the data, with most E.coli values being below 500, meaning there are 500 E.coli per 100 ml of water. However, the scatter plot also reveals that the data from 2020 stands out compared to other years, but a more precise graphical output is needed for a better understanding of the dataset. Therefore, in @fig-histogram, a bar chart was used to show the total amount of valid data collected each year. It is clear that due to the COVID-19 pandemic, the data collected by Toronto Public Health in 2020 is significantly less compared to other years. @tbl-proportion also provides a calculation of the distribution of collected E.coli data. Based on Canada's water quality standard of 200 E.coli per 100 ml, about 78% of the data falls within this standard, meaning that approximately 78% of the days from 2007 to the present were safe for beach activities. However, based on Toronto stricter standard of 100 E.coli per 100 ml, only around 60% of the data meets this standard, meaning that about 60% of the days were safe for beachgoers. However, considering the additional variables of location and date, it is not yet possible to draw a reasonable conclusion about the overall water quality. A more in-depth analysis will be conducted in @sec-result.
@@ -133,7 +132,6 @@ kable(ecoli_distribution,
 
 ## Dataset justification
 The reason for choosing this dataset is that, during this summer, there were news reports about several incidents of people defecating on Toronto beaches, with even photos of the feces circulating. This caused some panic among people in Toronto who were planning to visit the beach. To verify whether the beach closures were indeed caused by these incidents and to reduce potential bias, as well as out of personal interest, this paper uses data published by Toronto Public Health. The dataset spans 18 years, from 2007 to the present, containing E.coli test results for beach water quality. It effectively reveals the trends in water quality over the years and helps to project future trends, reducing doubts about the validity of the analysis due to a small data sample.
-
 
 # Result {#sec-result}
 
@@ -236,7 +234,6 @@ From a temporal perspective, the data presented in the previous section's graphs
 The trend illustrated in Figure 3 shows a clear negative correlation between average E.coli levels and time. However, since the average value alone cannot serve as a definitive indicator of this trend, we can also consider the exceedance rates displayed in @fig-histogram-proportion. In 2008, the exceedance rate of E. coli surpassed 50%, indicating poor water quality from June to September of that year, which likely curtailed recreational activities and posed potential health risks. In contrast, 2016 marked the lowest levels of E.coli, aligning closely with the Toronto beach water quality standard of 100 E.coli per 100 ml, with an exceedance rate of only about 20%. This improvement may be linked to government initiatives aimed at enhancing the beach environment, as well as favorable weather conditions during the summer months.
 
 Data collection in 2020 was limited due to restrictions imposed by the COVID-19 pandemic; however, there was no significant increase in E.coli levels compared to other years, suggesting that overall water quality remained stable. Over time, both graphs demonstrate that after experiencing two peaks, E.coli levels have generally declined and stabilized.
-
 
 ## Whether the Site location influence E.coli
 In addition to temporal factors, evaluating whether testing locations impact E.coli levels can further highlight differences in water quality across various measurement sites. As illustrated in @fig-scatter-mean-site, average E.coli levels vary significantly based on the test location. Sunnyside Beach generally exhibits lower E.coli levels, indicating relatively better water quality, particularly at the 20W test site, where the exceedance rate is only 35.09%, according to @tbl-proportion-site. In contrast, Marie Curtis Park East Beach shows relatively higher E. coli levels, especially at the 29W and 33W test sites, where exceedance rates approach 40%.
